@@ -33,4 +33,19 @@ router.get("/", async (req, res, next) => {
   }
 });
 
+router.put("/:id", async (req, res, next) => {
+  try {
+    console.log("body ", req.body);
+    
+    const editedValue = await db.movie.update(req.body, {
+      where: {
+        id: req.params.id,
+      },
+    });
+    res.send(editedValue);
+  } catch (error) {
+    return next(error);
+  }
+});
+
 module.exports = router;
