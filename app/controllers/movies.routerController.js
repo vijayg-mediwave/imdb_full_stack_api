@@ -15,4 +15,22 @@ router.post("/", async (req, res, next) => {
   }
 });
 
+router.get("/", async (req, res, next) => {
+  try {
+    const movieData = await db.movie.findAll({});
+    res.status(200).send(movieData);
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get("/", async (req, res, next) => {
+  try {
+    const movieData = await db.movie.findAll({});
+    res.status(200).send(movieData);
+  } catch (error) {
+    return next(error);
+  }
+});
+
 module.exports = router;

@@ -2,7 +2,7 @@ const express = require("express");
 const env = require("dotenv");
 const db = require("./models/index");
 const userRouterControllerc = require("./controllers/users.routerController");
-const movieRouterControllerc = require("./controllers/movies.routerController");
+const movierouter = require("./controllers/movies.routerController");
 const app = express();
 
 env.config();
@@ -11,7 +11,7 @@ app.use(express.json());
 
 //ROUTER MIDDLEWARE
 app.use("/users", userRouterControllerc);
-app.use("/movies", movieRouterControllerc);
+app.use("/movies", movierouter);
 
 //ERROR HANDLING
 app.use((err, req, res, next) => {
@@ -35,7 +35,7 @@ const dbConnect = async () => {
     console.log(error);
   }
 };
-dbConnect();
+//dbConnect();
 
 //PATH NOT FOUND
 app.use((req, res, next) => {
@@ -44,9 +44,11 @@ app.use((req, res, next) => {
   });
 });
 
-app.listen(process.env.PORT || 3000, (err) => {
-  if (err) {
-    console.log(`app is not running${err}`);
+//PORT LISTENING
+app.listen(process.env.PORT || 3000, (error) => {
+  if (error) {
+    console.log(error);
+    process.exit(1);
   } else {
     console.log(`app running successfully on ${process.env.PORT}`);
   }
