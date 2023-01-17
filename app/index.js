@@ -2,6 +2,7 @@ const express = require("express");
 const env = require("dotenv");
 const db = require("./models/index");
 const userRouterControllerc = require("./controllers/users.routerController");
+const movieRouterControllerc = require("./controllers/movies.routerController");
 const app = express();
 
 env.config();
@@ -9,7 +10,8 @@ env.config();
 app.use(express.json());
 
 //ROUTER MIDDLEWARE
-app.use("/movies", userRouterControllerc);
+app.use("/users", userRouterControllerc);
+app.use("/movies", movieRouterControllerc);
 
 //ERROR HANDLING
 app.use((err, req, res, next) => {
