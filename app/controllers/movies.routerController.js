@@ -3,21 +3,29 @@ const db = require("../models/index");
 const { checkForUser } = require("../middlewares/auth.middleware");
 const router = express.Router();
 
-router.post("/", checkForUser, async (req, res, next) => {
-  try {
-    //BODY OF MOVIE PAYLOAD
-    const moviePayload = {
-      ...req.body,
-      createdByUser: res.locals.user,
-    };
-    const newMovie = await db.movie.create(moviePayload);
+const validateSchema = require("../middlewares/validation.middleware");
+const movieSchemas = require("../validations/movie.validation");
 
-    res.status(400).send(newMovie);
-    //console.log(postedData);
-  } catch (error) {
-    return next(error);
+router.post(
+  "/",
+  checkForUser,
+  validateSchema(movieSchemas.movieSchema),
+  async (req, res, next) => {
+    try {
+      //BODY OF MOVIE PAYLOAD
+      const moviePayload = {
+        ...req.body,
+        createdByUser: res.locals.user,
+      };
+      const newMovie = await db.movie.create(moviePayload);
+
+      res.status(400).send(newMovie);
+      //console.log(postedData);
+    } catch (error) {
+      return next(error);
+    }
   }
-});
+);
 
 router.get("/", async (req, res, next) => {
   try {
@@ -49,56 +57,62 @@ router.get("/:movieId", async (req, res, next) => {
   }
 });
 
-router.put("/:movieId", checkForUser, async (req, res, next) => {
-  try {
-    console.log(res.locals.user);
+router.put(
+  "/:movieId",
+  checkForUser,
+  validateSchema(movieSchemas.movieUpdateSchema),
+  async (req, res, next) => {
+    try {
+      console.log(res.locals.user);
 
-    //console.log("body ", req.body);
-    const movie = await db.movie.findOne({
-      where: {
-        id: req.params.movieId,
-      },
-    });
-
-    if (!movie) {
-      return res.status(404).send({
-        msg: "movie not found",
+      //console.log("body ", req.body);
+      const movie = await db.movie.findOne({
+        where: {
+          id: req.params.movieId,
+        },
       });
-    }
 
-    if (req.body.genre) {
-      movie.genre = req.body.genre;
-      //await movie.save();
-      // await db.movie.update(req.body, {
-      //   where: {
-      //     id: req.params.movieId,
-      //   },
-      // });
-    }
+      if (!movie) {
+        return res.status(404).send({
+          msg: "movie not found",
+        });
+      }
 
-    if (req.body.name) {
-      movie.name = req.body.name;
-      //await movie.save();
-    }
+      if (req.body.genre) {
+        movie.genre = req.body.genre;
+        //await movie.save();
+        // await db.movie.update(req.body, {
+        //   where: {
+        //     id: req.params.movieId,
+        //   },
+        // });
+      }
 
-    if (req.body.language) {
-      movie.language = req.body.language;
-    }
+      if (req.body.name) {
+        movie.name = req.body.name;
+        //await movie.save();
+      }
 
-    if (req.body.yearOfRelease) {
-      movie.yearOfRelease = req.body.yearOfRelease;
-    }
+      if (req.body.language) {
+        movie.language = req.body.language;
+      }
 
-    if (req.body.createdByUser) {
-      movie.createdByUser = req.body.createdByUser;
-    }
-    await movie.save();
+      if (req.body.yearOfRelease) {
+        movie.yearOfRelease = req.body.yearOfRelease;
+      }
 
-    return res.send(movie);
-  } catch (error) {
-    return next(error);
+      if (req.body.createdByUser) {
+        movie.createdByUser = req.body.createdByUser;
+      }
+
+      await movie.save();
+
+      return res.send(movie);
+    } catch (error) {
+      return next(error);
+    }
   }
-});
+);
 
 router.delete("/:movieId", checkForUser, async (req, res, next) => {
   try {
