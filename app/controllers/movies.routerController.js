@@ -1,14 +1,18 @@
 const express = require("express");
 const db = require("../models/index");
-
+const { checkForUser } = require("../middlewares/auth.middleware");
 const router = express.Router();
 
-router.post("/", async (req, res, next) => {
+router.post("/", checkForUser, async (req, res, next) => {
   try {
-    const postedData = await db.movie.create({
+    //BODY OF MOVIE PAYLOAD
+    const moviePayload = {
       ...req.body,
-    });
-    res.status(400).send(postedData);
+      createdByUser: res.locals.user,
+    };
+    const newMovie = await db.movie.create(moviePayload);
+
+    res.status(400).send(newMovie);
     //console.log(postedData);
   } catch (error) {
     return next(error);
@@ -45,16 +49,73 @@ router.get("/:movieId", async (req, res, next) => {
   }
 });
 
-router.put("/:id", async (req, res, next) => {
+router.put("/:movieId", checkForUser, async (req, res, next) => {
   try {
-    console.log("body ", req.body);
+    console.log(res.locals.user);
 
-    const editedValue = await db.movie.update(req.body, {
+    //console.log("body ", req.body);
+    const movie = await db.movie.findOne({
       where: {
-        id: req.params.id,
+        id: req.params.movieId,
       },
     });
-    res.send(editedValue);
+
+    if (!movie) {
+      return res.status(404).send({
+        msg: "movie not found",
+      });
+    }
+
+    if (req.body.genre) {
+      movie.genre = req.body.genre;
+      //await movie.save();
+      // await db.movie.update(req.body, {
+      //   where: {
+      //     id: req.params.movieId,
+      //   },
+      // });
+    }
+
+    if (req.body.name) {
+      movie.name = req.body.name;
+      //await movie.save();
+    }
+
+    if (req.body.language) {
+      movie.language = req.body.language;
+    }
+
+    if (req.body.yearOfRelease) {
+      movie.yearOfRelease = req.body.yearOfRelease;
+    }
+
+    if (req.body.createdByUser) {
+      movie.createdByUser = req.body.createdByUser;
+    }
+    await movie.save();
+
+    return res.send(movie);
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.delete("/:movieId", checkForUser, async (req, res, next) => {
+  try {
+    const deleteCount = await db.movie.destroy({
+      where: {
+        id: req.params.movieId,
+        createdByUser: res.locals.user,
+      },
+    });
+    if (deleteCount === 0) {
+      return res.status(404).send({
+        msg: "movie not found",
+      });
+    }
+    res.send({
+      delete: deleteCount,
+    });
   } catch (error) {
     return next(error);
   }
