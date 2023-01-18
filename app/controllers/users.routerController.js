@@ -3,44 +3,50 @@ const db = require("../models");
 const argon2 = require("argon2");
 router = express.Router();
 const { makeJWT } = require("../utils");
+const validateSchema = require("../middlewares/validation.middleware");
+const userSchemas = require("../validations/user.validation");
 
-router.post("/login", async (req, res, next) => {
-  try {
-    const user = await db.user.findOne({
-      where: {
-        name: req.body.name,
-      },
-      attributes: ["id", "password", "name"],
-    });
-    if (!user) {
-      return res.status(403).send({
-        msg: "user is not present",
+router.post(
+  "/login",
+  validateSchema(userSchemas.userSchema),
+  async (req, res, next) => {
+    try {
+      const user = await db.user.findOne({
+        where: {
+          name: req.body.name,
+        },
+        attributes: ["id", "password", "name"],
       });
-    }
-    //CAMEPARE PASSWORD
-    const passwordOk = await argon2.verify(user.password, req.body.password);
+      if (!user) {
+        return res.status(403).send({
+          msg: "user is not present",
+        });
+      }
+      //CAMEPARE PASSWORD
+      const passwordOk = await argon2.verify(user.password, req.body.password);
 
-    if (!passwordOk) {
-      return res.status(403).send({
-        msg: "user credntials invalid",
+      if (!passwordOk) {
+        return res.status(403).send({
+          msg: "user credntials invalid",
+        });
+      }
+
+      const token = makeJWT({
+        user: user.id,
       });
+
+      // const postedData = await db.user.create({
+      //   ...req.body,
+      // });
+      res.status(400).send({
+        token,
+      });
+      //console.log(postedData);
+    } catch (error) {
+      return next(error);
     }
-
-    const token = makeJWT({
-      user: user.id,
-    });
-
-    // const postedData = await db.user.create({
-    //   ...req.body,
-    // });
-    res.status(400).send({
-      token,
-    });
-    //console.log(postedData);
-  } catch (error) {
-    return next(error);
   }
-});
+);
 
 router.post("/signup", async (req, res, next) => {
   try {
