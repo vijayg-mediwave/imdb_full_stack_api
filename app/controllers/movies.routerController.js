@@ -24,10 +24,22 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.get("/", async (req, res, next) => {
+router.get("/:movieId", async (req, res, next) => {
+  //console.log(req.params.movieId);
   try {
-    const movieData = await db.movie.findAll({});
-    res.status(200).send(movieData);
+    const oneMovieData = await db.movie.findAll({
+      where: {
+        id: req.params.movieId,
+      },
+      include: [
+        {
+          model: db.user,
+          as: "createdUserInfo",
+        },
+      ],
+    });
+    //console.log(oneMovieData);
+    res.status(200).send(oneMovieData);
   } catch (error) {
     return next(error);
   }
@@ -36,7 +48,7 @@ router.get("/", async (req, res, next) => {
 router.put("/:id", async (req, res, next) => {
   try {
     console.log("body ", req.body);
-    
+
     const editedValue = await db.movie.update(req.body, {
       where: {
         id: req.params.id,

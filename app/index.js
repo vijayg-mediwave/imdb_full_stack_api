@@ -3,11 +3,14 @@ const env = require("dotenv");
 const db = require("./models/index");
 const userRouterControllerc = require("./controllers/users.routerController");
 const movierouter = require("./controllers/movies.routerController");
+const morgan = require("morgan");
 const app = express();
 
 env.config();
 
 app.use(express.json());
+
+app.use(morgan("tiny"));
 
 //ROUTER MIDDLEWARE
 app.use("/users", userRouterControllerc);
