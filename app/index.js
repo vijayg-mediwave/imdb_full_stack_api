@@ -19,7 +19,11 @@ app.use("/movies", movierouter);
 //ERROR HANDLING
 app.use((err, req, res, next) => {
   console.log(err);
-  res.send(err);
+  if (err.message == "jwt expired") {
+    return res.status(403).send({
+      message: "Bad jwt Token",
+    });
+  }
   return res.status(500).send({
     message: "internal server error",
   });

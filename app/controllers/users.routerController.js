@@ -1,18 +1,80 @@
 const express = require("express");
 const db = require("../models");
+const argon2 = require("argon2");
 router = express.Router();
+const { makeJWT } = require("../utils");
 
-router.post("/", async (req, res, next) => {
+router.post("/login", async (req, res, next) => {
   try {
-    const postedData = await db.user.create({
-      ...req.body,
+    const user = await db.user.findOne({
+      where: {
+        name: req.body.name,
+      },
+      attributes: ["id", "password", "name"],
     });
-    res.status(400).send(postedData);
+    if (!user) {
+      return res.status(403).send({
+        msg: "user is not present",
+      });
+    }
+    //CAMEPARE PASSWORD
+    const passwordOk = await argon2.verify(user.password, req.body.password);
+
+    if (!passwordOk) {
+      return res.status(403).send({
+        msg: "user credntials invalid",
+      });
+    }
+
+    const token = makeJWT({
+      user: user.id,
+    });
+
+    // const postedData = await db.user.create({
+    //   ...req.body,
+    // });
+    res.status(400).send({
+      token,
+    });
     //console.log(postedData);
   } catch (error) {
     return next(error);
   }
 });
+
+router.post("/signup", async (req, res, next) => {
+  try {
+    //check if the userName is taken
+    const userNameTaken = await db.user.findOne({
+      where: {
+        name: req.body.name,
+      },
+    });
+    if (userNameTaken) {
+      return res.status(201).send({
+        msg: "username already exist",
+      });
+    }
+    //PASSWORD HASH
+    const passwordHash = await argon2.hash(req.body.password);
+
+    //PASSWORD VERIFICATION
+    const passwordSame = await argon2.verify(passwordHash, req.body.password);
+
+    const userPaylad = {
+      name: req.body.name,
+      password: passwordHash,
+    };
+
+    const newUser = await db.user.create(userPaylad);
+    return res.status(400).send({
+      id: newUser.id,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
 router.get("/", async (req, res, next) => {
   try {
     const getData = await db.user.findAll({});
