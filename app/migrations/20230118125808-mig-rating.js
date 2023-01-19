@@ -34,6 +34,13 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      createdByUser: {
+        type: Sequelize.UUID,
+        refrences: {
+          model: "users",
+          key: "id",
+        },
+      },
     });
   },
 

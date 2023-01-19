@@ -3,6 +3,7 @@ const env = require("dotenv");
 const db = require("./models/index");
 const userRouterControllerc = require("./controllers/users.routerController");
 const movierouter = require("./controllers/movies.routerController");
+const ratingRouter = require("./controllers/rating.routerController");
 const morgan = require("morgan");
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(morgan("tiny"));
 //ROUTER MIDDLEWARE
 app.use("/users", userRouterControllerc);
 app.use("/movies", movierouter);
+app.use("/ratings", ratingRouter);
 
 //ERROR HANDLING
 app.use((err, req, res, next) => {
@@ -42,7 +44,7 @@ const dbConnect = async () => {
     console.log(error);
   }
 };
-//dbConnect();
+dbConnect();
 
 //PATH NOT FOUND
 app.use((req, res, next) => {
