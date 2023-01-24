@@ -5,6 +5,7 @@ router = express.Router();
 const { makeJWT } = require("../utils");
 const validateSchema = require("../middlewares/validation.middleware");
 const userSchemas = require("../validations/user.validation");
+const { checkForUser } = require("../middlewares/auth.middleware");
 
 router.post(
   "/login",
@@ -81,10 +82,18 @@ router.post("/signup", async (req, res, next) => {
   }
 });
 
-router.get("/", async (req, res, next) => {
+router.get("/info", checkForUser, async (req, res, next) => {
+  //console.log(res.locals.user);
+
   try {
-    const getData = await db.user.findAll({});
-    res.status(200).send(getData);
+    const userInfo = await db.user.findOne({
+      where: {
+        id: res.locals.user,
+      },
+      attributes: ["id", "name", "createdAt"],
+    });
+    const json = JSON.parse(JSON.stringify(userInfo));
+    return res.status(200).send({ ...json });
   } catch (error) {
     return next(error);
   }

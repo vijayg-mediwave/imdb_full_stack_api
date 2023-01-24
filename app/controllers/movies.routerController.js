@@ -47,6 +47,7 @@ router.get("/:movieId", async (req, res, next) => {
         {
           model: db.user,
           as: "createdUserInfo",
+          attributes:["id","name"]
         },
       ],
     });
