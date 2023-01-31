@@ -19,7 +19,7 @@ router.post(
       };
       const newMovie = await db.movie.create(moviePayload);
 
-      res.status(400).send(newMovie);
+      res.status(200).send(newMovie);
       //console.log(postedData);
     } catch (error) {
       return next(error);
@@ -47,7 +47,7 @@ router.get("/:movieId", async (req, res, next) => {
         {
           model: db.user,
           as: "createdUserInfo",
-          attributes:["id","name"]
+          attributes: ["id", "name"],
         },
       ],
     });
