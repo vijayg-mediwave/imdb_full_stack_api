@@ -14,9 +14,9 @@ app.use(express.json());
 app.use(morgan("tiny"));
 
 //ROUTER MIDDLEWARE
-app.use("/users", userRouterControllerc);
-app.use("/movies", movierouter);
-app.use("/ratings", ratingRouter);
+app.use("/api/users", userRouterControllerc);
+app.use("/api/movies", movierouter);
+app.use("/api/ratings", ratingRouter);
 
 //ERROR HANDLING
 app.use((err, req, res, next) => {

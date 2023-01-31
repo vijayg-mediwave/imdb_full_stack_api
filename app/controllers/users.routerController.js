@@ -39,7 +39,7 @@ router.post(
       // const postedData = await db.user.create({
       //   ...req.body,
       // });
-      res.status(400).send({
+      return res.send({
         token,
       });
       //console.log(postedData);
@@ -74,7 +74,7 @@ router.post("/signup", async (req, res, next) => {
     };
 
     const newUser = await db.user.create(userPaylad);
-    return res.status(400).send({
+    return res.status(200).send({
       id: newUser.id,
     });
   } catch (error) {
