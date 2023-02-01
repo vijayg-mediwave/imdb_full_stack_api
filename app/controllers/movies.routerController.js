@@ -39,7 +39,7 @@ router.get("/", async (req, res, next) => {
 router.get("/:movieId", async (req, res, next) => {
   //console.log(req.params.movieId);
   try {
-    const oneMovieData = await db.movie.findAll({
+    const oneMovieData = await db.movie.findOne({
       where: {
         id: req.params.movieId,
       },
