@@ -20,7 +20,7 @@ router.post(
       const newMovie = await db.movie.create(moviePayload);
 
       res.status(200).send(newMovie);
-      //console.log(postedData);
+      console.log(postedData);
     } catch (error) {
       return next(error);
     }
